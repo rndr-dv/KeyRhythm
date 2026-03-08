@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm — Skin Editor</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="lib/pickr/pickr.min.css">
+  <script src="js/theme-init.js"></script>
+</head>
+<body class="skin-editor-page">
+
+<div class="skin-editor-wrap">
+  <div class="skin-controls" id="seControls">
+    <div class="skin-header" id="seHeader">
+      <button class="btn btn-sm btn-dim" id="btnBack" title="Return to main menu">← Back</button>
+      <h2 id="seTitle">SKIN EDITOR</h2>
+    </div>
+
+    <!-- Preset -->
+    <div class="control-group">
+      <label id="sePresetLabel">Preset</label>
+      <div class="preset-row">
+        <select id="presetSelect" title="Choose a skin preset to load"></select>
+        <button class="btn btn-sm btn-dim" id="btnLoadPreset" title="Load selected preset">Load</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label id="seSkinNameLabel">Skin Name</label>
+      <input type="text" id="skinName" placeholder="My Skin" value="Custom">
+    </div>
+
+    <!-- Tab bar -->
+    <div class="skin-tab-bar" id="seTabBar">
+      <button class="skin-tab-btn active" data-tab="colors">Colors</button>
+      <button class="skin-tab-btn" data-tab="notes">Notes</button>
+      <button class="skin-tab-btn" data-tab="judgment">Judgment</button>
+      <button class="skin-tab-btn" data-tab="effects">Effects</button>
+      <button class="skin-tab-btn" data-tab="advanced">Advanced</button>
+      <button class="skin-tab-btn" data-tab="live">Live</button>
+    </div>
+
+    <!-- ═══ Colors tab ═══ -->
+    <div class="skin-tab-panel active" data-tab="colors">
+      <div class="control-group">
+        <label id="seLaneColorsLabel">Lane Colors</label>
+        <div class="lane-colors-grid" id="laneColorGrid"></div>
+      </div>
+
+      <div class="section-label">Per-Lane Note Appearance</div>
+
+      <div class="control-group">
+        <label>Note Colors</label>
+        <div class="lane-colors-grid" id="noteColorGrid"></div>
+      </div>
+      <div class="control-group">
+        <label>Hold Colors</label>
+        <div class="lane-colors-grid" id="holdColorGrid"></div>
+      </div>
+
+      <details style="margin-top:8px">
+        <summary style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;cursor:pointer">Advanced Note Colors</summary>
+        <div style="margin-top:6px">
+          <div class="control-group">
+            <label>Note Border Colors</label>
+            <div class="lane-colors-grid" id="noteBorderColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Note Shine Colors</label>
+            <div class="lane-colors-grid" id="noteShineColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Note Glow Colors</label>
+            <div class="lane-colors-grid" id="noteGlowColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hold Body Colors</label>
+            <div class="lane-colors-grid" id="holdBodyColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hold Border Colors</label>
+            <div class="lane-colors-grid" id="holdBorderColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hold Stripe Colors</label>
+            <div class="lane-colors-grid" id="holdStripeColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hold Tail Cap Colors</label>
+            <div class="lane-colors-grid" id="holdTailCapColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hold Tick Colors</label>
+            <div class="lane-colors-grid" id="holdTickColorGrid"></div>
+          </div>
+        </div>
+      </details>
+
+      <div class="section-label" style="margin-top:16px">Per-Lane Hit Zone &amp; Keys</div>
+
+      <div class="control-group">
+        <label>Hit Line Colors</label>
+        <div class="lane-colors-grid" id="hitLineColorGrid"></div>
+      </div>
+      <div class="control-group">
+        <label>Key Box Background</label>
+        <div class="lane-colors-grid" id="keyBoxBgColorGrid"></div>
+      </div>
+
+      <details style="margin-top:8px">
+        <summary style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;cursor:pointer">Advanced Hit &amp; Key Colors</summary>
+        <div style="margin-top:6px">
+          <div class="control-group">
+            <label>Hit Glow Colors</label>
+            <div class="lane-colors-grid" id="hitGlowColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hit Flash Colors</label>
+            <div class="lane-colors-grid" id="hitFlashColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hit Burst Colors</label>
+            <div class="lane-colors-grid" id="hitBurstColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Hit Ring Colors</label>
+            <div class="lane-colors-grid" id="hitRingColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Key Box Border Colors</label>
+            <div class="lane-colors-grid" id="keyBoxBorderColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Key Box Text Colors</label>
+            <div class="lane-colors-grid" id="keyBoxTextColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Lane Border Colors</label>
+            <div class="lane-colors-grid" id="laneBorderColorGrid"></div>
+          </div>
+          <div class="control-group">
+            <label>Lane Press Colors</label>
+            <div class="lane-colors-grid" id="lanePressColorGrid"></div>
+          </div>
+        </div>
+      </details>
+
+      <div class="control-group">
+        <label>Miss Note Colors</label>
+        <select id="missNoteMode" class="select-full">
+          <option value="darken">Darkened Lane Colors (auto)</option>
+          <option value="custom">Custom Per-Lane</option>
+          <option value="flat">Single Flat Color</option>
+        </select>
+      </div>
+      <div class="control-group" id="missNoteDarkenGroup">
+        <label>Darken Amount — <span id="missNoteDarkenVal">35%</span></label>
+        <input type="range" id="missNoteDarken" min="0.1" max="0.8" step="0.05" value="0.35">
+      </div>
+      <div class="control-group" id="missNoteCustomGroup" style="display:none">
+        <div class="lane-colors-grid" id="missNoteColorGrid"></div>
+      </div>
+      <div class="control-group" id="missNoteFlatGroup" style="display:none">
+        <div class="color-row">
+          <div id="missNoteFlatColor" class="kr-picker-container"></div>
+          <span id="missNoteFlatColorHex">#666666</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seBgColorLabel">Background Color</label>
+        <div class="color-row">
+          <div id="bgColor" class="kr-picker-container"></div>
+          <span id="bgColorHex">#0e0e1c</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seBgImageLabel">Background</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-sm btn-dim" id="btnUploadBgImage" title="Upload a background image or video">Upload</button>
+          <button class="btn btn-sm btn-dim" id="btnClearBgImage" title="Remove background">Clear</button>
+          <span id="bgImageStatus" style="font-size:10px;color:var(--text-dim)"></span>
+        </div>
+        <input type="file" id="bgImageFile" accept="image/*,video/*" style="display:none">
+        <div style="display:flex;gap:6px;align-items:center;margin-top:4px">
+          <input type="text" id="bgMediaUrl" placeholder="Or paste image/video URL..." style="flex:1;font-size:11px;padding:4px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text)">
+          <button class="btn btn-sm btn-dim" id="btnLoadBgUrl">Load</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seBgOpacityLabel">BG Image Opacity — <span id="bgImageOpacityVal">30%</span></label>
+        <input type="range" id="bgImageOpacity" min="0" max="1" step="0.05" value="0.3">
+      </div>
+
+      <div class="control-group">
+        <label id="seBgSaturationLabel">BG Image Saturation — <span id="bgImageSaturationVal">100%</span></label>
+        <input type="range" id="bgImageSaturation" min="0" max="200" step="5" value="100">
+      </div>
+
+      <div class="control-group">
+        <label id="seBgBlurLabel">BG Image Blur — <span id="bgImageBlurVal">0</span>px</label>
+        <input type="range" id="bgImageBlur" min="0" max="20" step="1" value="0">
+      </div>
+
+      <div class="control-group">
+        <label id="seHitLineColorLabel">Hit Line Color</label>
+        <div class="color-row">
+          <div id="hitLineColor" class="kr-picker-container"></div>
+          <span id="hitLineColorHex">#ffffff</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seKeyBoxColorLabel">Key Box Color</label>
+        <div class="color-row">
+          <div id="keyBoxColor" class="kr-picker-container"></div>
+          <span id="keyBoxColorHex">#0c0c18</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seKeyBoxModeLabel">Key Box Mode</label>
+        <select id="keyBoxMode" class="select-full">
+          <option value="solid">Solid (use Key Box Color)</option>
+          <option value="dark">Dark (darken lane color)</option>
+          <option value="tinted">Tinted (color + lane tint)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label id="seComboColorLabel">Combo Text Color</label>
+        <div class="color-row">
+          <div id="comboColor" class="kr-picker-container"></div>
+          <span id="comboColorHex">#ffffff</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Notes tab ═══ -->
+    <div class="skin-tab-panel" data-tab="notes">
+      <div class="control-group">
+        <label id="seNoteShapeLabel">Note Shape</label>
+        <div class="radio-row" id="noteShapeRadios" style="flex-wrap:wrap">
+          <label><input type="radio" name="noteShape" value="rounded" checked> Rounded</label>
+          <label><input type="radio" name="noteShape" value="sharp"> Sharp</label>
+          <label><input type="radio" name="noteShape" value="diamond"> Diamond</label>
+          <label><input type="radio" name="noteShape" value="circle"> Circle</label>
+          <label><input type="radio" name="noteShape" value="hexagon"> Hexagon</label>
+          <label><input type="radio" name="noteShape" value="arrow"> Arrow</label>
+          <label><input type="radio" name="noteShape" value="triangle"> Triangle</label>
+          <label><input type="radio" name="noteShape" value="key"> Key</label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteGlowLabel">Note Glow — <span id="glowVal">12</span></label>
+        <input type="range" id="noteGlow" min="0" max="30" step="1" value="12" title="Shadow blur intensity on notes">
+      </div>
+
+      <div class="control-group">
+        <label id="seHitLineWidthLabel">Hit Line Width — <span id="hitLineWidthVal">2</span></label>
+        <input type="range" id="hitLineWidth" min="1" max="4" step="0.5" value="2" title="Thickness of the hit line">
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteHeightLabel">Note Height — <span id="noteHeightVal">100%</span></label>
+        <input type="range" id="noteHeight" min="0.5" max="2.0" step="0.1" value="1.0" title="Height multiplier for tap notes">
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldWidthLabel">Hold Thickness — <span id="holdWidthVal">44%</span></label>
+        <input type="range" id="holdBodyWidth" min="0.2" max="1.0" step="0.02" value="0.44" title="Width of hold note body as fraction of lane">
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldStripesLabel" style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="holdStripes" checked> Hold Body Stripes
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteShineLabel">Note Shine — <span id="noteShineVal">30%</span></label>
+        <input type="range" id="noteShine" min="0" max="1" step="0.05" value="0.30" title="Brightness of shine strip on notes (0=off)">
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldTickMarksLabel" style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="holdTickMarks" checked> Hold Tick Marks
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldBorderWidthLabel">Hold Border Width — <span id="holdBorderWidthVal">1</span></label>
+        <input type="range" id="holdBorderWidth" min="0" max="3" step="0.5" value="1" title="Hold body outline stroke width">
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteBorderWidthLabel">Note Border Width — <span id="noteBorderWidthVal">0</span></label>
+        <input type="range" id="noteBorderWidth" min="0" max="4" step="0.5" value="0" title="Outline stroke width on tap/hold note heads (0=off)">
+      </div>
+      <div class="control-group">
+        <label id="seTailCapStyleLabel">Tail Cap Style</label>
+        <select id="tailCapStyle" class="select-full">
+          <option value="rounded">Rounded</option>
+          <option value="flat">Flat</option>
+          <option value="pointed">Pointed</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label id="seTailCapWidthLabel">Tail Cap Width — <span id="tailCapWidthVal">100%</span></label>
+        <input type="range" id="tailCapWidth" min="0.5" max="2.0" step="0.05" value="1.0" title="Width multiplier for hold note tail cap">
+      </div>
+
+      <div class="control-group">
+        <label id="seTailCapHeightLabel">Tail Cap Height — <span id="tailCapHeightVal">100%</span></label>
+        <input type="range" id="tailCapHeight" min="0.5" max="2.0" step="0.05" value="1.0" title="Height multiplier for hold note tail cap">
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteIconLabel">Note Icon</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-sm btn-dim" id="btnUploadNoteIcon" title="Upload an image to use as note icon">Upload Image</button>
+          <button class="btn btn-sm btn-dim" id="btnClearNoteIcon" title="Remove custom note icon">Clear</button>
+          <span id="noteIconStatus" style="font-size:10px;color:var(--text-dim)"></span>
+        </div>
+        <input type="file" id="noteIconFile" accept="image/*" style="display:none">
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteIconScaleLabel">Note Icon Scale — <span id="noteIconScaleVal">100%</span></label>
+        <input type="range" id="noteIconScale" min="0.5" max="10.0" step="0.05" value="1.0" title="Size multiplier for custom note icon">
+      </div>
+
+      <div class="control-group">
+        <label id="seNoteIconOffsetYLabel">Note Icon Y Offset — <span id="noteIconOffsetYVal">0</span>px</label>
+        <input type="range" id="noteIconOffsetY" min="-20" max="20" step="1" value="0" title="Vertical offset for custom note icon">
+      </div>
+    </div>
+
+    <!-- ═══ Judgment tab ═══ -->
+    <div class="skin-tab-panel" data-tab="judgment">
+      <div class="control-group">
+        <label id="sePerfectLabel">PERFECT</label>
+        <div class="color-row">
+          <div id="perfectColor" class="kr-picker-container"></div>
+          <span id="perfectColorHex">#ffd040</span>
+          <input type="text" id="perfectText" class="judgment-text" placeholder="PERFECT" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seGoodLabel">GOOD</label>
+        <div class="color-row">
+          <div id="goodColor" class="kr-picker-container"></div>
+          <span id="goodColorHex">#60ff90</span>
+          <input type="text" id="goodText" class="judgment-text" placeholder="GOOD" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seOkLabel">OK</label>
+        <div class="color-row">
+          <div id="okColor" class="kr-picker-container"></div>
+          <span id="okColorHex">#40c4ff</span>
+          <input type="text" id="okText" class="judgment-text" placeholder="OK" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seMissLabel">MISS</label>
+        <div class="color-row">
+          <div id="missColor" class="kr-picker-container"></div>
+          <span id="missColorHex">#ff4060</span>
+          <input type="text" id="missText" class="judgment-text" placeholder="MISS" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seEarlyLabel">EARLY</label>
+        <div class="color-row">
+          <div id="earlyColor" class="kr-picker-container"></div>
+          <span id="earlyColorHex">#ffa060</span>
+          <input type="text" id="earlyText" class="judgment-text" placeholder="EARLY" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seLateLabel">LATE</label>
+        <div class="color-row">
+          <div id="lateColor" class="kr-picker-container"></div>
+          <span id="lateColorHex">#60a0ff</span>
+          <input type="text" id="lateText" class="judgment-text" placeholder="LATE" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldLabel">HOLD</label>
+        <div class="color-row">
+          <div id="holdJudgeColor" class="kr-picker-container"></div>
+          <span id="holdJudgeColorHex">#ffd040</span>
+          <input type="text" id="holdText" class="judgment-text" placeholder="HOLD!" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seBreakLabel">BREAK</label>
+        <div class="color-row">
+          <div id="breakColor" class="kr-picker-container"></div>
+          <span id="breakColorHex">#ff4060</span>
+          <input type="text" id="breakText" class="judgment-text" placeholder="BREAK" maxlength="20">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seShowEarlyLateLabel" style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="showEarlyLate" checked> Show Early/Late
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label id="seScoreColorLabel">Score Color</label>
+        <div class="color-row">
+          <div id="scoreColor" class="kr-picker-container"></div>
+          <span id="scoreColorHex">#ffffff</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seJudgeSizeLabel">Judgment Size — <span id="judgeSizeVal">100%</span></label>
+        <input type="range" id="judgeSizeMultiplier" min="0.5" max="2.0" step="0.05" value="1.0" title="Scale judgment text size">
+      </div>
+
+      <div class="control-group">
+        <label id="seJudgeFontLabel">Font</label>
+        <select id="fontFamily" class="select-full">
+          <option value="monospace">Monospace</option>
+          <option value="sans-serif">Sans-Serif</option>
+          <option value="serif">Serif</option>
+          <option value="system-ui">System UI</option>
+          <option value="'Courier New', monospace">Courier New</option>
+          <option value="'Arial', sans-serif">Arial</option>
+          <option value="'Georgia', serif">Georgia</option>
+          <option value="'Verdana', sans-serif">Verdana</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+          <option value="cursive">Cursive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ═══ Effects tab ═══ -->
+    <div class="skin-tab-panel" data-tab="effects">
+      <div class="section-label" id="seHpProgressHeader">HP &amp; Progress</div>
+
+      <div class="control-group">
+        <label id="seHpHighLabel">HP High Color (&gt;50%)</label>
+        <div class="color-row">
+          <div id="hpHighColor" class="kr-picker-container"></div>
+          <span id="hpHighColorHex">#60ff90</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHpMidLabel">HP Mid Color (25-50%)</label>
+        <div class="color-row">
+          <div id="hpMidColor" class="kr-picker-container"></div>
+          <span id="hpMidColorHex">#ffd040</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHpLowLabel">HP Low Color (&lt;25%)</label>
+        <div class="color-row">
+          <div id="hpLowColor" class="kr-picker-container"></div>
+          <span id="hpLowColorHex">#ff4060</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHpBgLabel">HP Background</label>
+        <div class="color-row">
+          <div id="hpBgColor" class="kr-picker-container"></div>
+          <span id="hpBgColorHex">#14142a</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHpBorderLabel">HP Border</label>
+        <div class="color-row">
+          <div id="hpBorderColor" class="kr-picker-container"></div>
+          <span id="hpBorderColorHex">#303055</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seProgressColorsLabel">Progress Bar Colors</label>
+        <div class="color-row" style="gap:4px">
+          <div id="progressColor0" class="kr-picker-container" title="Left color"></div>
+          <div id="progressColor1" class="kr-picker-container" title="Middle color"></div>
+          <div id="progressColor2" class="kr-picker-container" title="Right color"></div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHpBarHeightLabel">HP Bar Thickness — <span id="hpBarHeightVal">10</span>px</label>
+        <input type="range" id="hpBarHeight" min="4" max="20" step="1" value="10">
+      </div>
+
+      <div class="control-group">
+        <label id="seHpBarWidthLabel">HP Bar Length — <span id="hpBarWidthVal">115</span>px</label>
+        <input type="range" id="hpBarWidth" min="40" max="200" step="5" value="115">
+      </div>
+
+      <div class="control-group">
+        <label id="seProgressBarHeightLabel">Progress Bar Thickness — <span id="progressBarHeightVal">3</span>px</label>
+        <input type="range" id="progressBarHeight" min="1" max="8" step="1" value="3">
+      </div>
+
+      <div class="section-label" id="seLaneAppearanceHeader">Lane Appearance</div>
+
+      <div class="control-group">
+        <label id="seMissFlashLabel">Miss Flash Color</label>
+        <div class="color-row">
+          <div id="missFlashColor" class="kr-picker-container"></div>
+          <span id="missFlashColorHex">#ff3c50</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seLaneBgLabel">Lane Background</label>
+        <select id="laneGradientMode" class="select-full">
+          <option value="fade">Fade (bottom glow)</option>
+          <option value="solid">Solid (flat tint)</option>
+          <option value="none">None (transparent)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label id="seHitZoneLabel">Hit Zone Style</label>
+        <select id="hitZoneStyle" class="select-full">
+          <option value="glow">Glow (shadow + line)</option>
+          <option value="line">Line only</option>
+          <option value="none">Hidden</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label id="seSongInfoLabel">Song Info Color</label>
+        <div class="color-row">
+          <div id="songInfoColor" class="kr-picker-container"></div>
+          <span id="songInfoColorHex">#383860</span>
+        </div>
+      </div>
+
+      <div class="section-label" id="seHitEffectsHeader">Hit Effects</div>
+
+      <div class="control-group">
+        <label id="seHitBurstLabel" style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="hitBurstEnabled" checked> Hit Burst
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label id="seHitRingLabel" style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="hitRingEnabled" checked> Hit Ring
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label id="seBurstIntensityLabel">Burst Intensity — <span id="hitBurstIntensityVal">100%</span></label>
+        <input type="range" id="hitBurstIntensity" min="0.5" max="2.0" step="0.05" value="1.0">
+      </div>
+
+      <div class="control-group">
+        <label id="seFlashIntensityLabel">Flash Intensity — <span id="hitFlashIntensityVal">100%</span></label>
+        <input type="range" id="hitFlashIntensity" min="0" max="2.0" step="0.05" value="1.0">
+      </div>
+
+      <div class="control-group">
+        <label id="seApproachGlowLabel">Note Approach Glow — <span id="noteApproachGlowVal">22</span></label>
+        <input type="range" id="noteApproachGlow" min="0" max="30" step="1" value="22">
+      </div>
+
+      <div class="section-label">Combo</div>
+
+      <div class="control-group">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="comboEnabled" checked> Show Combo Counter
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label id="seComboTextLabel">Combo Text Template</label>
+        <input type="text" id="comboText" class="judgment-text" placeholder="{n} COMBO" maxlength="30" title="Use {n} for the combo number">
+      </div>
+
+      <div class="control-group">
+        <label id="seMilestoneLabel">Milestones</label>
+        <div id="milestoneList" class="milestone-list"></div>
+        <button class="btn btn-sm btn-dim" id="btnAddMilestone" style="margin-top:6px" title="Add a new combo milestone">+ Add Milestone</button>
+      </div>
+
+      <div class="section-label" id="seCelebrationHeader">Celebration</div>
+
+      <div class="control-group">
+        <label id="seFcColorLabel">Full Combo Color</label>
+        <div class="color-row">
+          <div id="fcColor" class="kr-picker-container"></div>
+          <span id="fcColorHex">#ffd040</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="sePcSatLabel">Perfect Clear Saturation — <span id="pcSaturationVal">100%</span></label>
+        <input type="range" id="pcSaturation" min="0" max="100" step="5" value="100" title="Rainbow color intensity (0=grayscale)">
+      </div>
+    </div>
+
+    <!-- ═══ Advanced tab ═══ -->
+    <div class="skin-tab-panel" data-tab="advanced">
+      <div class="section-label" id="seHitsoundHeader">Hitsound Defaults</div>
+
+      <div class="control-group">
+        <label id="seGlobalHitsoundLabel">Global Hitsound</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="skinHitsound" class="select-flex">
+            <option value="">(None — use settings)</option>
+            <option value="tick">Tick</option>
+            <option value="click">Click</option>
+            <option value="drum">Drum</option>
+            <option value="bass">Bass</option>
+            <option value="bell">Bell</option>
+            <option value="kick">Kick</option>
+            <option value="snare">Snare</option>
+          </select>
+          <button class="btn btn-sm btn-dim" id="btnTestSkinHS" title="Preview this hitsound">Test</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldTickLabel">Hold Tick Sound</label>
+        <select id="skinSliderTick" class="select-full">
+          <option value="">(None — use settings)</option>
+          <option value="tick">Tick</option>
+          <option value="click">Click</option>
+          <option value="drum">Drum</option>
+          <option value="bass">Bass</option>
+          <option value="bell">Bell</option>
+          <option value="kick">Kick</option>
+          <option value="snare">Snare</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label id="seHoldEndLabel">Hold End Sound</label>
+        <select id="skinSliderEnd" class="select-full">
+          <option value="">(None — use settings)</option>
+          <option value="tick">Tick</option>
+          <option value="click">Click</option>
+          <option value="drum">Drum</option>
+          <option value="bass">Bass</option>
+          <option value="bell">Bell</option>
+          <option value="kick">Kick</option>
+          <option value="snare">Snare</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ═══ Live tab ═══ -->
+    <div class="skin-tab-panel" data-tab="live">
+      <div class="section-label" id="seLiveOverlayHeader">Overlay Appearance</div>
+
+      <div class="control-group">
+        <label id="seLiveAccentLabel">Accent Color</label>
+        <div class="color-row">
+          <div id="liveAccentColor" class="kr-picker-container"></div>
+          <span id="liveAccentColorHex">#c060ff</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label id="seLiveOpacityLabel">Background Opacity — <span id="liveOpacityVal">95%</span></label>
+        <input type="range" id="liveOpacity" min="0.3" max="1.0" step="0.05" value="0.95">
+      </div>
+
+      <div class="control-group">
+        <label id="seLiveBorderRadiusLabel">Border Radius — <span id="liveBorderRadiusVal">6</span>px</label>
+        <input type="range" id="liveBorderRadius" min="0" max="20" step="1" value="6">
+      </div>
+    </div>
+
+  </div>
+
+  <div class="skin-preview" id="sePreview">
+    <div class="preview-header">
+      <span class="preview-label" id="sePreviewLabel">PREVIEW</span>
+      <select id="previewLanes" class="select-sm" title="Number of lanes to preview">
+        <option value="2">2 lanes</option>
+        <option value="3" selected>3 lanes</option>
+        <option value="4">4 lanes</option>
+        <option value="5">5 lanes</option>
+        <option value="6">6 lanes</option>
+        <option value="7">7 lanes</option>
+      </select>
+      <label style="font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:4px;cursor:pointer" title="Animate notes falling in the preview">
+        <input type="checkbox" id="previewAnimate" checked> Animate
+      </label>
+    </div>
+    <canvas id="previewCanvas" width="340" height="550"></canvas>
+    <div class="skin-footer" id="seFooter">
+      <button class="btn btn-green" id="btnSaveSkin" title="Save skin to browser storage">Save</button>
+      <button class="btn btn-cyan"  id="btnExportSkin" title="Download skin as .json file">Export .json</button>
+      <button class="btn btn-dim"   id="btnImportSkin" title="Load a skin from a .json file">Import .json</button>
+      <button class="btn btn-dim"   id="btnResetSkin" title="Reset to default skin">Reset Default</button>
+    </div>
+    <input type="file" id="skinImportFile" accept=".json" style="display:none">
+  </div>
+</div>
+
+<script src="js/settings.js"></script>
+<script src="js/db.js"></script>
+<script src="js/ui-layout.js"></script>
+<script src="js/skins.js"></script>
+<script src="js/hitsounds.js"></script>
+<script src="js/utils.js"></script>
+<script src="lib/pickr/pickr.min.js"></script>
+<script src="js/color-picker.js"></script>
+<script src="js/skin-editor.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/bg-music.js"></script>
+</body>
+</html>

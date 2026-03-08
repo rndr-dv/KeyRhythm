@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm – Editor</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme-init.js"></script>
+</head>
+<body class="editor-page">
+
+  <div class="editor-toolbar" id="toolbar">
+    <button class="btn btn-sm btn-dim" id="btnMenu">← Menu</button>
+    <span class="editor-title" id="edTitle" contenteditable="true" spellcheck="false">EDITOR</span>
+    <div class="spacer"></div>
+    <button class="btn btn-sm btn-dim" id="btnUndo" title="Ctrl+Z">↩ Undo</button>
+    <button class="btn btn-sm btn-dim" id="btnRedo" title="Ctrl+Y">↪ Redo</button>
+    <button class="btn btn-sm btn-dim" id="btnLoadAudio">Load Audio</button>
+    <button class="btn btn-sm btn-green" id="btnSave">Save</button>
+    <button class="btn btn-sm btn-red hidden" id="btnReRecord" title="Re-record notes from current position (Shift+R)">⏺ Rec</button>
+    <button class="btn btn-sm btn-dim hidden" id="btnCancelRec" title="Cancel re-recording (Escape)">✕ Cancel</button>
+    <button class="btn btn-sm btn-accent" id="btnTest">▶ Test</button>
+    <select class="btn btn-sm btn-cyan export-sel" id="exportSel" title="Export">
+      <option value="">⬇ Export as…</option>
+      <option value="share">📋 Share code</option>
+      <option value="json">.json (notes only)</option>
+      <option value="krz">.krz (with audio)</option>
+    </select>
+  </div>
+
+  <div class="editor-audio-bar" id="audioBar">
+    <button class="btn btn-sm btn-accent" id="btnPlayPause" title="Play/pause audio (Space)" style="width:90px">▶ Play</button>
+    <span class="audio-time" id="audioTimeEl">0:00.000</span>
+    <input type="range" id="seekBar" min="0" max="100" step="0.01" value="0" class="seek-bar">
+    <span class="speed-label" id="speedLabel">Speed: 1x</span>
+    <input type="range" id="speedSlider" min="0.25" max="2" step="0.05" value="1" title="Playback speed" class="speed-slider">
+    <span class="zoom-label" id="edZoomLabel">Zoom:</span>
+    <button class="btn btn-sm btn-dim" id="btnZoomOut" title="Zoom out timeline">–</button>
+    <button class="btn btn-sm btn-dim" id="btnZoomIn" title="Zoom in timeline">+</button>
+    <span class="audio-hint" id="edKeysHint" title="Space=play/pause · [ ] \ = add tap · Del = delete · ←→ = move · Shift+←→ = 1ms · Ctrl+←→ = duration · Ctrl+Z/Y = undo/redo · Ctrl+C/V = copy/paste · Shift+drag = select box · Shift+R = re-record">? Keys</span>
+  </div>
+
+  <!-- BPM / snap bar -->
+  <div class="editor-bpm-bar" id="bpmBar">
+    <div class="bpm-group">
+      <label id="edBpmLabel">BPM</label>
+      <input type="number" id="bpmInput" placeholder="---" min="1" max="999" step="0.01">
+      <button class="btn btn-sm btn-dim" id="btnTapBpm" title="Tap to estimate BPM (4+ taps)">Tap</button>
+      <label id="edBpmOffsetLabel">Offset</label>
+      <input type="number" id="bpmOffset" placeholder="0s" step="0.001" title="Beat 1 start time (seconds)">
+      <button class="btn btn-sm btn-cyan" id="btnDetectBpm" title="Auto-detect BPM from audio" disabled>Detect</button>
+      <label id="edDynamicLabel" title="Enable multi-section BPM detection for songs with tempo changes">
+        <input type="checkbox" id="dynamicBpmToggle">
+        Dynamic
+      </label>
+    </div>
+    <div class="bpm-group">
+      <label id="edDivLabel">Div</label>
+      <select id="beatDiv">
+        <option value="1">1/1</option>
+        <option value="2">1/2</option>
+        <option value="4" selected>1/4</option>
+        <option value="8">1/8</option>
+        <option value="16">1/16</option>
+      </select>
+      <label id="edSnapLabel">
+        <input type="checkbox" id="snapToggle">
+        Snap
+      </label>
+      <select id="snapMode">
+        <option value="all">All Notes</option>
+        <option value="end">Sel End</option>
+        <option value="allEnds">All Ends</option>
+      </select>
+      <button class="btn btn-sm btn-dim" id="btnSnap" title="Snap to BPM grid">↗ Snap</button>
+      <label id="edMinHoldLabel" title="Holds shorter than this (ms) become taps on Snap All">Min hold</label>
+      <input type="number" id="minHoldMs" value="0" min="0" max="2000" step="10" title="Min hold duration (ms) for Snap All; 0 = no conversion">
+    </div>
+    <div class="bpm-group">
+      <label id="edShiftLabel">Shift</label>
+      <input type="number" id="offsetDelta" placeholder="±ms" step="1" value="0">
+      <button class="btn btn-sm btn-dim" id="btnOffsetApply" title="Shift all notes by ±ms">Apply</button>
+      <label id="edDiffLabel">Diff</label>
+      <select id="diffSelect">
+        <option value="">—</option>
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Hard</option>
+        <option value="expert">Expert</option>
+      </select>
+    </div>
+    <div class="bpm-group">
+      <label id="edTrimLabel">Trim</label>
+      <button class="btn btn-sm btn-cyan" id="btnAutotrim" title="Remove silence from start/end" disabled>Autotrim</button>
+      <button class="btn btn-sm btn-dim" id="btnResetTrim" title="Reset trim to full audio">Reset</button>
+      <label id="edPadLabel">Pad</label>
+      <input type="number" id="trimPadBeats" placeholder="0" min="0" max="16" step="1" value="0" title="Beats of silence to keep at start/end" style="width:50px">
+      <span style="font-size:12px;color:var(--text-dim)" id="edPadBeatsLabel">beats</span>
+    </div>
+  </div>
+
+  <!-- BPM sections list (dynamic mode) -->
+  <div class="bpm-sections-bar hidden" id="bpmSectionsBar">
+    <div class="bpm-sections-header">
+      <span class="bpm-sections-title">BPM Sections</span>
+      <button class="btn btn-sm btn-dim" id="btnAddSection" title="Add section boundary at current playhead">+ Add</button>
+    </div>
+    <div class="bpm-sections-list" id="bpmSectionsList"></div>
+  </div>
+
+  <div class="editor-canvas-wrap">
+    <canvas id="editorCanvas"></canvas>
+  </div>
+
+  <div class="editor-info" id="infoBar">
+    <div id="edInfoNotesRow">Notes: <span id="infoNotes">0</span></div>
+    <div id="edInfoTimeRow">Time: <span id="infoSelTime">—</span></div>
+    <div id="edInfoLaneRow">Lane: <span id="infoSelLane">—</span></div>
+    <div id="edInfoDurRow">Duration: <span id="infoSelDur">—</span></div>
+    <div id="edInfoSoundRow">Sound: <select id="infoHitsound" class="select-sm">
+      <option value="">default</option>
+      <option value="tick">tick</option>
+      <option value="click">click</option>
+      <option value="drum">drum</option>
+      <option value="bell">bell</option>
+      <option value="bass">bass</option>
+      <option value="kick">kick</option>
+      <option value="snare">snare</option>
+      <option value="none">none</option>
+    </select></div>
+    <div id="infoBridgeRow" style="display:none">Bridge→
+      <select id="infoBridgeTo" class="select-sm">
+        <option value="">none</option>
+        <option value="0">L1</option>
+        <option value="1">L2</option>
+        <option value="2">L3</option>
+        <option value="3">L4</option>
+        <option value="4">L5</option>
+        <option value="5">L6</option>
+        <option value="6">L7</option>
+      </select>
+      At:<input type="number" id="infoBridgeAt" min="0" step="10" class="bridge-at-input" title="Glide transition time from note head (ms)">ms
+    </div>
+    <div style="display:flex;gap:4px">
+      <button class="btn btn-sm btn-cyan" id="btnAddGlide" title="Select a hold note + any other note to create a glide between them (or select 1 hold note and use Bridge controls)">→ Glide</button>
+      <button class="btn btn-sm btn-dim" id="btnRemoveGlide" title="Remove glide from selected note(s)">× Glide</button>
+    </div>
+    <div id="edInfoSelRow">Selected: <span id="infoMultiSel">1</span></div>
+    <div class="audio-hint" id="edMouseHint" style="margin-left:auto" title="Click = tap · Drag right = hold · Tail circle = resize · Shift+click = multi-select · Shift+drag = select box · Drag selection = move group · Ctrl+C/V = copy/paste · Ctrl+Scroll = zoom · Select hold + any note → Glide">? Mouse</div>
+  </div>
+
+  <input type="file" id="audioFileInput" accept="audio/*" style="display:none">
+
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/ui-layout.js"></script>
+  <script src="js/skins.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/bpm-detect.js"></script>
+  <script src="js/audio-trim.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bg-music.js"></script>
+</body>
+</html>

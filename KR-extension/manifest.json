@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "KeyRhythm",
+  "version": "0.9.2",
+  "description": "3-key falling bars rhythm game with level creator and editor",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_title": "KeyRhythm",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "permissions": ["storage", "scripting", "tabs", "offscreen"],
+  "optional_host_permissions": ["<all_urls>"],
+  
+  "web_accessible_resources": [{
+    "resources": ["liveCS.js", "js/db.js", "js/settings.js"],
+    "matches": ["<all_urls>"]
+  }]
+}

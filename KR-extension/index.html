@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme-init.js"></script>
+</head>
+<body class="index-page">
+
+  <div class="logo" id="logo">
+    <span class="k0" id="logoK0">[</span><span class="k1" id="logoK1">]</span><span class="k2" id="logoK2">\</span>
+    &nbsp;KEYRHYTHM
+  </div>
+  <div class="tagline" id="tagline">[ &nbsp; ] &nbsp; \</div>
+
+  <div class="menu-grid" id="menuGrid">
+    <button class="btn" id="btnPlay" title="Browse and play your levels">▶ &nbsp;Play</button>
+    <button class="btn btn-cyan" id="btnCreate" title="Create a new level from an audio file">+ &nbsp;Create Level</button>
+    <button class="btn btn-dim" id="btnImport" title="Import a .json or .krz level file">↓ &nbsp;Import File</button>
+    <button class="btn btn-dim" id="btnImportCode" title="Import a level from a share code">📋 &nbsp;Import Code</button>
+    <button class="btn btn-dim" id="btnPlaylists" title="View and manage playlists">♫ &nbsp;Playlists</button>
+    <button class="btn btn-dim" id="btnSettings" title="Adjust gameplay, audio, and visual settings">⚙ &nbsp;Settings</button>
+  </div>
+
+  <div id="songList" class="song-list hidden">
+    <h2 id="idxYourLevelsTitle">Your Levels</h2>
+    <div class="song-controls" id="idxSongControls">
+      <input type="text" id="searchBox" placeholder="Search…" class="search-input" title="Filter levels by title or artist">
+      <select id="sortSelect" class="sort-select" title="Sort levels by">
+        <option value="date">Newest</option>
+        <option value="title">A–Z</option>
+        <option value="artist">Artist</option>
+        <option value="score">Best Score</option>
+        <option value="recent">Recently Played</option>
+      </select>
+    </div>
+    <div id="songItems"></div>
+  </div>
+
+  <!-- Playlists section -->
+  <div id="playlistSection" class="song-list hidden" style="margin-top:12px">
+    <div class="playlist-header" id="idxPlaylistHeader">
+      <h2 id="idxPlaylistsTitle">Playlists</h2>
+      <button class="btn btn-sm btn-cyan" id="btnNewPlaylist">+ New</button>
+      <button class="btn btn-sm btn-dim" id="btnImportPlaylist" title="Import a playlist .json or .zip file">↓ Import</button>
+      <input type="file" id="importPlaylistFile" accept=".json,.zip" style="display:none">
+    </div>
+    <div id="playlistItems"></div>
+  </div>
+
+  <!-- Playlist edit overlay -->
+  <div class="game-overlay hidden" id="playlistEditOverlay">
+    <div class="settings-modal playlist-edit-modal">
+      <h2 id="plEditTitle">Edit Playlist</h2>
+      <div class="setting-row" style="margin-bottom:12px">
+        <label>Name</label>
+        <input type="text" id="plNameInput" class="pl-name-input">
+      </div>
+      <div class="section-subheader">Songs in Playlist</div>
+      <div id="plSongList" class="pl-song-list"></div>
+      <div class="section-subheader">Add Songs</div>
+      <div id="plAddSongs" class="pl-add-songs"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btnSavePlaylist">Save</button>
+        <button class="btn btn-dim"   id="btnCancelPlaylist">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings overlay -->
+  <div class="game-overlay hidden" id="settingsOverlay">
+    <div class="settings-modal playlist-edit-modal" id="settingsModal" style="max-width:500px">
+      <h2 id="stTitle">SETTINGS</h2>
+
+      <div class="settings-tabs" id="stTabBar">
+        <button class="settings-tab active" data-tab="gameplay">Gameplay</button>
+        <button class="settings-tab" data-tab="audio">Audio</button>
+        <button class="settings-tab" data-tab="visuals">Visuals</button>
+        <button class="settings-tab" data-tab="controls">Controls</button>
+      </div>
+
+      <!-- Gameplay tab -->
+      <div class="settings-tab-content active" data-tab="gameplay">
+        <div class="setting-row">
+          <label id="stScrollSpeedLabel">Scroll Speed</label>
+          <input type="range" id="sSpeed" min="0.5" max="3" step="0.1" value="1">
+          <span id="sSpeedVal">1.0×</span>
+        </div>
+        <div class="setting-row">
+          <label id="stAudioOffsetLabel">Audio Offset</label>
+          <input type="range" id="sOffset" min="-500" max="500" step="1" value="0">
+          <span id="sOffsetVal">0ms</span>
+        </div>
+        <div class="setting-row" id="tapTestRow">
+          <label id="stCalibrateLabel" style="width:auto;flex-shrink:1">Calibrate</label>
+          <button class="btn btn-sm btn-dim" id="btnTapTest" title="Play beeps and tap along to auto-detect audio offset">Tap Test</button>
+          <span id="tapTestStatus" style="font-size:11px;color:var(--text-dim);flex:1"></span>
+          <button class="btn btn-sm btn-green hidden" id="btnTapApply">Apply</button>
+        </div>
+        <div class="setting-row">
+          <label id="stPracticeSpeedLabel">Practice Speed</label>
+          <input type="range" id="sPractice" min="0.1" max="2.0" step="0.05" value="1.0">
+          <span id="sPracticeVal">1.0×</span>
+        </div>
+        <div class="setting-row">
+          <label id="stPracticeModeLabel" title="No health drain — play through the whole song without dying">Practice Mode</label>
+          <input type="checkbox" id="sPracticeMode">
+          <span style="font-size:11px;color:var(--text-dim);white-space:nowrap">(no death)</span>
+        </div>
+        <div class="setting-row">
+          <label id="stGlideLabel" title="Hold notes that cross adjacent lanes become glide notes">Glide Notes</label>
+          <input type="checkbox" id="sGlide">
+          <span style="font-size:11px;color:var(--text-dim);white-space:nowrap">(hold + adjacent = glide)</span>
+        </div>
+        <div class="setting-row">
+          <label title="Require precise release timing on held notes">Strict Release</label>
+          <input type="checkbox" id="sStrictRelease">
+          <span style="font-size:11px;color:var(--text-dim);white-space:nowrap">(judge hold release timing)</span>
+        </div>
+        <div class="setting-row">
+          <label title="Automatically save changes in editors">Autosave</label>
+          <input type="checkbox" id="sAutosave">
+          <span style="font-size:11px;color:var(--text-dim);white-space:nowrap">(auto-save editor changes)</span>
+        </div>
+        <button class="btn btn-sm btn-dim" id="btnResetGameplay" style="width:100%;margin-top:12px">&circlearrowleft; Reset Gameplay</button>
+      </div>
+
+      <!-- Audio tab -->
+      <div class="settings-tab-content" data-tab="audio">
+        <div class="setting-row">
+          <label id="stMasterVolLabel">Master Vol</label>
+          <input type="range" id="sMasterVol" min="0" max="1" step="0.05" value="1">
+          <span id="sMasterVolVal">100%</span>
+        </div>
+        <div class="setting-row">
+          <label id="stMusicVolLabel">Music Vol</label>
+          <input type="range" id="sMusicVol" min="0" max="1" step="0.05" value="1">
+          <span id="sMusicVolVal">100%</span>
+        </div>
+        <div class="setting-row">
+          <label id="stMetronomeVolLabel">Metronome Vol</label>
+          <input type="range" id="sMetronomeVol" min="0" max="1" step="0.05" value="0.5">
+          <span id="sMetronomeVolVal">50%</span>
+        </div>
+        <div class="divider" id="stAudioDivider1"></div>
+        <div class="setting-row">
+          <label id="stHitsoundLabel">Hitsound</label>
+          <select id="sHitsound" class="select-flex">
+            <option value="none">None</option>
+            <option value="tick" selected>Tick</option>
+            <option value="click">Click</option>
+            <option value="drum">Drum</option>
+            <option value="bass">Bass</option>
+            <option value="bell">Bell</option>
+            <option value="kick">Kick</option>
+            <option value="snare">Snare</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <button class="btn btn-sm btn-dim" id="btnTestHitsound" title="Preview the selected hitsound">Test</button>
+        </div>
+        <div class="setting-row hidden" id="customHitsoundRow">
+          <label>Custom File</label>
+          <button class="btn btn-sm btn-dim" id="btnUploadHitsound" title="Upload an audio file (max 500KB)">Upload Audio</button>
+          <span id="customHitsoundStatus" style="font-size:11px;color:var(--text-dim)"></span>
+          <input type="file" id="customHitsoundFile" accept="audio/*" style="display:none">
+        </div>
+        <div class="setting-row">
+          <label id="stHitsoundVolLabel">Hitsound Vol</label>
+          <input type="range" id="sHitsoundVol" min="0" max="1" step="0.05" value="0.5">
+          <span id="sHitsoundVolVal">50%</span>
+        </div>
+        <div class="setting-row">
+          <label title="Shift hitsound pitch based on lane position (left=lower, right=higher)">HS Auto Pitch</label>
+          <input type="checkbox" id="sHitsoundPitch">
+        </div>
+        <div class="setting-row">
+          <label title="How much pitch shifts per lane (±range around normal)">Pitch Range</label>
+          <input type="range" id="sHitsoundPitchRange" min="0" max="0.2" step="0.005" value="0.2">
+          <span id="sHitsoundPitchRangeVal">±0.20</span>
+        </div>
+        <div class="setting-row">
+          <label id="stSliderTickLabel" title="Sound for hold note body ticks">Slider Tick</label>
+          <select id="sSliderTick" class="select-flex">
+            <option value="">(Global)</option>
+            <option value="none">None</option>
+            <option value="tick">Tick</option>
+            <option value="click">Click</option>
+            <option value="drum">Drum</option>
+            <option value="bass">Bass</option>
+            <option value="bell">Bell</option>
+            <option value="kick">Kick</option>
+            <option value="snare">Snare</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <label id="stSliderEndLabel" title="Sound when a hold note ends">Slider End</label>
+          <select id="sSliderEnd" class="select-flex">
+            <option value="">(Global)</option>
+            <option value="none">None</option>
+            <option value="tick">Tick</option>
+            <option value="click">Click</option>
+            <option value="drum">Drum</option>
+            <option value="bass">Bass</option>
+            <option value="bell">Bell</option>
+            <option value="kick">Kick</option>
+            <option value="snare">Snare</option>
+          </select>
+        </div>
+        <details style="margin-top:8px">
+          <summary id="stCustomHitsoundTitle" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;cursor:pointer">Custom Hitsound Library</summary>
+          <div style="margin-top:6px">
+            <div id="customHitsoundList" style="margin-bottom:8px"></div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <button class="btn btn-sm btn-dim" id="btnAddCustomHitsound">+ Upload Sound</button>
+              <span style="font-size:10px;color:var(--text-dim)">Max 500KB, up to 10 sounds</span>
+            </div>
+            <input type="file" id="customHitsoundUpload" accept="audio/*" style="display:none">
+          </div>
+        </details>
+        <details style="margin-top:8px">
+          <summary id="stPerLaneTitle" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;cursor:pointer">Per-Lane Hitsounds</summary>
+          <div id="laneHitsoundRows" style="margin-top:6px"></div>
+        </details>
+        <details style="margin-top:8px">
+          <summary id="stPerLaneEndTitle" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;cursor:pointer">Per-Lane Hold-End Sounds</summary>
+          <div id="laneSliderEndRows" style="margin-top:6px"></div>
+        </details>
+        <div class="divider" id="stAudioDivider2" style="margin:12px 0 8px"></div>
+        <div id="stBgMusicHeader" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Background Music</div>
+        <div class="setting-row">
+          <label id="stBgMusicLabel" title="Play music in the background on non-game pages">Enabled</label>
+          <input type="checkbox" id="sBgMusic">
+        </div>
+        <div class="setting-row" id="bgMusicModeRow">
+          <label id="stBgMusicModeLabel">Mode</label>
+          <select id="sBgMusicMode" class="select-flex">
+            <option value="random">Random Songs</option>
+            <option value="bgVideo">Background Video Audio</option>
+            <option value="custom">Custom Upload</option>
+          </select>
+        </div>
+        <div class="setting-row hidden" id="bgMusicCustomRow">
+          <label>Custom Audio</label>
+          <button class="btn btn-sm btn-dim" id="btnUploadBgAudio" title="Upload an audio file for background music">Upload</button>
+          <span id="bgAudioStatus" style="font-size:10px;color:var(--text-dim)"></span>
+          <input type="file" id="bgAudioFile" accept="audio/*" style="display:none">
+        </div>
+        <div class="setting-row">
+          <label id="stBgMusicWidgetLabel" title="Show the mini-player bubble in the bottom-right corner">Show Widget</label>
+          <input type="checkbox" id="sBgMusicWidget">
+        </div>
+        <div class="setting-row">
+          <label id="stBgMusicVolLabel">BG Music Vol</label>
+          <input type="range" id="sBgMusicVol" min="0" max="1" step="0.05" value="0.5">
+          <span id="sBgMusicVolVal">50%</span>
+        </div>
+        <div class="setting-row" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px">
+          <label title="Use different background music settings for the popup window">Separate Popup Music</label>
+          <input type="checkbox" id="sSeparatePopupMusic">
+        </div>
+        <div id="popupMusicControls" class="hidden">
+          <div class="setting-row">
+            <label>Popup Mode</label>
+            <select id="sPopupBgMusicMode" class="select-flex">
+              <option value="random">Random Songs</option>
+              <option value="bgVideo">Background Video Audio</option>
+              <option value="custom">Custom Upload</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <label>Popup Music Vol</label>
+            <input type="range" id="sPopupBgMusicVol" min="0" max="1" step="0.05" value="0.5">
+            <span id="sPopupBgMusicVolVal">50%</span>
+          </div>
+        </div>
+        <button class="btn btn-sm btn-dim" id="btnResetAudio" style="width:100%;margin-top:12px">&circlearrowleft; Reset Audio</button>
+      </div>
+
+      <!-- Visuals tab -->
+      <div class="settings-tab-content" data-tab="visuals">
+        <div class="setting-row" style="flex-wrap:wrap;gap:6px">
+          <label id="stGlobalThemeLabel" style="width:130px">Themes</label>
+          <span id="sGlobalThemeCurrent" style="font-size:11px;color:var(--text-dim);flex:1"></span>
+          <button class="btn btn-sm btn-accent" id="btnBrowseThemes">Browse Themes</button>
+        </div>
+        <div class="divider" id="stVisualsDivider1" style="margin:10px 0 8px"></div>
+        <div class="setting-row">
+          <label id="stHideTooltipsLabel" title="Hide help tooltips on hover (song name tooltips still show)">Hide Tooltips</label>
+          <input type="checkbox" id="sHideTooltips">
+        </div>
+        <div class="setting-row" style="flex-wrap:wrap;gap:6px">
+          <label id="stSkinLabel" style="width:130px">Skin</label>
+          <span id="sSkinName" style="font-size:11px;color:var(--text-dim);flex:1">Default</span>
+          <button class="btn btn-sm btn-dim" id="btnUploadSkin" title="Load a skin from a .json file">Upload .json</button>
+          <button class="btn btn-sm btn-dim" id="btnResetSkin" title="Reset to default skin">Reset</button>
+          <button class="btn btn-sm btn-cyan" id="btnOpenSkinEditor" title="Open the visual skin editor">Open Editor</button>
+        </div>
+        <input type="file" id="skinFile" accept=".json" style="display:none">
+        <div class="divider" id="stVisualsDivider2" style="margin:12px 0 8px"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <div id="stBgImageHeader" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Background</div>
+        </div>
+        <div class="setting-row">
+          <label title="Use a different background for the popup window">Separate Popup BG</label>
+          <input type="checkbox" id="sSeparatePopupBg">
+        </div>
+        <div class="setting-row hidden" id="appBgTargetRow">
+          <label>Editing</label>
+          <select id="appBgTarget" class="select-flex">
+            <option value="main">Main Page</option>
+            <option value="popup">Popup</option>
+          </select>
+        </div>
+        <div class="setting-row" style="flex-wrap:wrap;gap:6px">
+          <button class="btn btn-sm btn-dim" id="btnUploadAppBg" title="Upload a background image or video">Upload</button>
+          <button class="btn btn-sm btn-dim" id="btnClearAppBg" title="Remove background">Clear</button>
+          <span id="appBgStatus" style="font-size:10px;color:var(--text-dim);flex:1"></span>
+        </div>
+        <input type="file" id="appBgFile" accept="image/*,video/*" style="display:none">
+        <div class="setting-row" style="gap:6px">
+          <input type="text" id="appBgUrl" placeholder="Or paste image/video URL..." style="flex:1;font-size:11px;padding:4px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--text)">
+          <button class="btn btn-sm btn-dim" id="btnLoadAppBgUrl">Load</button>
+        </div>
+        <div class="setting-row">
+          <label id="stBgOpacityLabel">Image Opacity — <span id="appBgOpacityVal">30%</span></label>
+          <input type="range" id="appBgOpacity" min="0" max="1" step="0.05" value="0.3">
+        </div>
+        <div class="setting-row">
+          <label id="stBgSaturationLabel">Image Saturation — <span id="appBgSaturationVal">100%</span></label>
+          <input type="range" id="appBgSaturation" min="0" max="200" step="5" value="100">
+        </div>
+        <div class="setting-row">
+          <label id="stBgBlurLabel">Image Blur — <span id="appBgBlurVal">0</span>px</label>
+          <input type="range" id="appBgBlur" min="0" max="20" step="1" value="0">
+        </div>
+        <button class="btn btn-sm btn-dim" id="btnResetVisuals" style="width:100%;margin-top:12px">&circlearrowleft; Reset Visuals</button>
+      </div>
+
+      <!-- Controls tab -->
+      <div class="settings-tab-content" data-tab="controls">
+        <div style="margin-bottom:6px;display:flex;align-items:center;gap:6px">
+          <label id="stProfileLabel" style="font-size:11px;color:var(--text-dim)">Profile:</label>
+          <select id="keybindProfile" class="select-sm">
+            <option value="">Global (all lanes)</option>
+            <option value="2">2 lanes</option>
+            <option value="3">3 lanes</option>
+            <option value="4">4 lanes</option>
+            <option value="5">5 lanes</option>
+            <option value="6">6 lanes</option>
+            <option value="7">7 lanes</option>
+          </select>
+        </div>
+        <div id="keybindBtns" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+        <div id="tapBpmRow" class="setting-row" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px"></div>
+        <div class="divider" id="stControlsDivider1" style="margin:10px 0 6px"></div>
+        <div id="stLiveControlsHeader" style="font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Live Controls</div>
+        <div class="setting-row">
+          <label id="stExitKeyLabel">Exit Key</label>
+          <button class="btn btn-sm btn-dim" id="sLiveExitKey" style="min-width:70px">Escape</button>
+        </div>
+        <div class="setting-row">
+          <label id="stPauseKeyLabel">Pause Key</label>
+          <button class="btn btn-sm btn-dim" id="sLivePauseKey" style="min-width:70px">Space</button>
+        </div>
+        <button class="btn btn-sm btn-dim" id="btnResetControls" style="width:100%;margin-top:12px">&circlearrowleft; Reset Controls</button>
+      </div>
+
+      <div class="settings-modal-footer" id="stFooter">
+        <button class="btn btn-dim btn-sm" id="btnResetAllSettings" title="Reset all settings to defaults">↺ Reset All</button>
+        <button class="btn btn-dim btn-sm" id="btnCloseSettings">✕ Close</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="importFile" accept=".json,.krz" style="display:none">
+
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/ui-layout.js"></script>
+  <script src="js/skins.js"></script>
+  <script src="js/hitsounds.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/index.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bg-music.js"></script>
+</body>
+</html>

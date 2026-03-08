@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme-init.js"></script>
+</head>
+<body class="game-page">
+
+  <!-- Loading screen -->
+  <div class="load-screen" id="loadScreen">
+    <div class="load-screen-title" id="gpLoadTitle">LOADING…</div>
+    <div id="loadMsg" class="load-screen-msg">Fetching song data</div>
+    <div class="load-buttons">
+      <button class="btn btn-sm btn-dim" id="btnLoadAudio2" style="display:none">Load Audio File</button>
+      <button class="btn btn-sm btn-cyan" id="btnPlaySilent" style="display:none">▶ Play Silent</button>
+    </div>
+  </div>
+
+  <!-- Game canvas -->
+  <canvas id="gameCanvas" style="display:none"></canvas>
+
+  <!-- Countdown overlay -->
+  <div class="game-overlay hidden" id="overlayCountdown">
+    <div class="overlay-title countdown-num-big" id="countdownNum">3</div>
+    <div class="countdown-song-name" id="songNameDisplay"></div>
+    <div id="practiceLabel" class="countdown-practice"></div>
+  </div>
+
+  <!-- Pause overlay -->
+  <div class="game-overlay hidden" id="overlayPause">
+    <div class="overlay-title pause-title" id="gpPauseTitle">PAUSED</div>
+    <div class="pause-content">
+    <div class="overlay-buttons pause-buttons" id="gpPauseButtons">
+      <button class="btn btn-green" id="btnResume" title="Resume playing">▶ Resume</button>
+      <button class="btn btn-cyan"  id="btnRetryPause" title="Restart the song">↺ Retry</button>
+      <button class="btn btn-cyan"  id="btnEditPause" title="Return to editor" style="display:none">✎ Edit</button>
+      <button class="btn btn-dim"   id="btnMenuPause" title="Return to main menu">← Menu</button>
+    </div>
+    <div class="pause-settings" id="pauseSettings">
+      <details>
+        <summary class="pause-summary" id="gpPauseSummary">⚙ SETTINGS</summary>
+      <div class="setting-row">
+        <label id="gpMasterVolLabel">Master Vol</label>
+        <input type="range" id="pMasterVol" min="0" max="1" step="0.05">
+        <span id="pMasterVolVal">100%</span>
+      </div>
+      <div class="setting-row">
+        <label id="gpMusicVolLabel">Music Vol</label>
+        <input type="range" id="pMusicVol" min="0" max="1" step="0.05">
+        <span id="pMusicVolVal">100%</span>
+      </div>
+      <div class="setting-row">
+        <label id="gpHitsoundLabel">Hitsound</label>
+        <select id="pHitsound" class="select-flex select-sm">
+          <option value="none">None</option>
+          <option value="tick">Tick</option>
+          <option value="click">Click</option>
+          <option value="drum">Drum</option>
+          <option value="bass">Bass</option>
+          <option value="bell">Bell</option>
+          <option value="kick">Kick</option>
+          <option value="snare">Snare</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label id="gpHsVolLabel">HS Volume</label>
+        <input type="range" id="pHitsoundVol" min="0" max="1" step="0.05">
+        <span id="pHitsoundVolVal">50%</span>
+      </div>
+      <div class="setting-row">
+        <label id="gpAudioOffsetLabel">Audio Offset</label>
+        <input type="range" id="pAudioOffset" min="-500" max="500" step="5">
+        <span id="pAudioOffsetVal">0ms</span>
+      </div>
+      <div class="divider" id="gpPauseDivider"></div>
+      <div class="setting-row">
+        <label id="gpScrollSpeedLabel">Scroll Speed</label>
+        <input type="range" id="pScrollSpeed" min="0.5" max="3.0" step="0.1">
+        <span id="pScrollSpeedVal">1.0×</span>
+      </div>
+      <div class="setting-row">
+        <label id="gpPracticeSpeedLabel">Practice Speed</label>
+        <input type="range" id="pPracticeSpeed" min="0.1" max="2.0" step="0.05">
+        <span id="pPracticeSpeedVal">1.0×</span>
+      </div>
+      <div class="setting-row">
+        <label id="gpPracticeModeLabel" title="No health drain — play through the whole song">Practice Mode</label>
+        <input type="checkbox" id="pPracticeMode">
+      </div>
+      <div class="setting-row">
+        <label id="gpGlideLabel" title="Takes effect on retry">Glide Notes</label>
+        <input type="checkbox" id="pGlide">
+      </div>
+      <div class="setting-row">
+        <label title="Require precise release timing on held notes">Strict Release</label>
+        <input type="checkbox" id="pStrictRelease">
+      </div>
+      </details>
+    </div>
+    </div>
+    <div class="pause-hint" id="gpPauseHint">ESC to resume</div>
+  </div>
+
+  <!-- FX canvas for FC / Perfect Clear animations -->
+  <canvas id="fxCanvas" class="fx-canvas"></canvas>
+
+  <!-- Result overlay -->
+  <div class="game-overlay hidden" id="overlayResult">
+    <div class="overlay-title" id="resultTitle">CLEAR</div>
+    <div class="result-song" id="resultSong"></div>
+    <div class="results-grid" id="gpResultsGrid">
+      <span class="label" id="gpScoreLabel">SCORE</span>    <span class="val" id="rScore">0</span>
+      <span class="label" id="gpComboLabel">MAX COMBO</span><span class="val" id="rCombo">0</span>
+      <span class="label" id="gpPerfectLabel">PERFECT</span> <span class="val perfect" id="rPerfect">0</span>
+      <span class="label" id="gpGoodLabel">GOOD</span>    <span class="val good"    id="rGood">0</span>
+      <span class="label" id="gpOkLabel">OK</span>      <span class="val ok"      id="rOk">0</span>
+      <span class="label" id="gpMissLabel">MISS</span>    <span class="val miss"    id="rMiss">0</span>
+      <span class="label" id="gpAccLabel">ACCURACY</span><span class="val"        id="rAcc">—</span>
+      <span class="label" id="gpRankLabel">RANK</span>    <span class="val"        id="rRank">—</span>
+    </div>
+    <div id="rPerfectClear" class="pc-banner" style="display:none">✦ PERFECT CLEAR ✦</div>
+    <div id="rFullCombo" class="fc-banner" style="display:none">★ FULL COMBO!</div>
+    <div id="newBestMsg" class="new-best-msg" style="display:none">★ NEW BEST!</div>
+    <div id="unrankedMsg" class="unranked-msg" style="display:none">UNRANKED</div>
+    <!-- Playlist next-song section -->
+    <div id="playlistNext" class="playlist-next" style="display:none">
+      <div class="playlist-next-label">NEXT UP</div>
+      <div id="plNextTitle" class="playlist-next-title"></div>
+      <div id="plNextCountdown" class="playlist-next-countdown">5</div>
+      <div class="playlist-next-btns">
+        <button class="btn btn-sm btn-green" id="btnPlNext">Next ▶</button>
+        <button class="btn btn-sm btn-dim"   id="btnPlStop">Stop</button>
+      </div>
+    </div>
+    <div class="pause-content">
+    <div class="overlay-buttons" id="gpResultButtons">
+      <button class="btn btn-green" id="btnRetry" title="Restart the song">↺ Retry</button>
+      <button class="btn btn-cyan"  id="btnEdit" title="Open in editor">✎ Edit</button>
+      <button class="btn btn-dim"   id="btnMenu" title="Return to main menu">← Menu</button>
+    </div>
+    <div class="pause-settings" id="resultSettings">
+      <details>
+        <summary class="pause-summary" id="gpResultSummary">⚙ SETTINGS</summary>
+      <div class="setting-row">
+        <label>Master Vol</label>
+        <input type="range" id="rMasterVol" min="0" max="1" step="0.05">
+        <span id="rMasterVolVal">100%</span>
+      </div>
+      <div class="setting-row">
+        <label>Music Vol</label>
+        <input type="range" id="rMusicVol" min="0" max="1" step="0.05">
+        <span id="rMusicVolVal">100%</span>
+      </div>
+      <div class="setting-row">
+        <label>Hitsound</label>
+        <select id="rHitsound" class="select-flex select-sm">
+          <option value="none">None</option>
+          <option value="tick">Tick</option>
+          <option value="click">Click</option>
+          <option value="drum">Drum</option>
+          <option value="bass">Bass</option>
+          <option value="bell">Bell</option>
+          <option value="kick">Kick</option>
+          <option value="snare">Snare</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label>HS Volume</label>
+        <input type="range" id="rHitsoundVol" min="0" max="1" step="0.05">
+        <span id="rHitsoundVolVal">50%</span>
+      </div>
+      <div class="setting-row">
+        <label>Audio Offset</label>
+        <input type="range" id="rAudioOffset" min="-500" max="500" step="5">
+        <span id="rAudioOffsetVal">0ms</span>
+      </div>
+      <div class="divider"></div>
+      <div class="setting-row">
+        <label>Scroll Speed</label>
+        <input type="range" id="rScrollSpeed" min="0.5" max="3.0" step="0.1">
+        <span id="rScrollSpeedVal">1.0×</span>
+      </div>
+      <div class="setting-row">
+        <label>Practice Speed</label>
+        <input type="range" id="rPracticeSpeed" min="0.1" max="2.0" step="0.05">
+        <span id="rPracticeSpeedVal">1.0×</span>
+      </div>
+      <div class="setting-row">
+        <label title="No health drain — play through the whole song">Practice Mode</label>
+        <input type="checkbox" id="rPracticeMode">
+      </div>
+      <div class="setting-row">
+        <label title="Takes effect on retry">Glide Notes</label>
+        <input type="checkbox" id="rGlide">
+      </div>
+      <div class="setting-row">
+        <label title="Require precise release timing on held notes">Strict Release</label>
+        <input type="checkbox" id="rStrictRelease">
+      </div>
+      </details>
+    </div>
+    </div>
+  </div>
+
+  <input type="file" id="audioFileGame" accept="audio/*" style="display:none">
+
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/skins.js"></script>
+  <script src="js/hitsounds.js"></script>
+  <script src="js/ui-layout.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bg-music.js"></script>
+</body>
+</html>

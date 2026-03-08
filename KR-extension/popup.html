@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme-init.js"></script>
+  <style>
+    body { width: 380px; min-height: 120px; max-height: 600px; overflow-y: auto; overflow-x: hidden; }
+  </style>
+</head>
+<body class="popup-page">
+
+  <div class="popup-header" id="popupHeader">
+    <div class="popup-logo" id="popLogo">
+      <span class="k0" id="popLogoK0">[</span><span class="k1" id="popLogoK1">]</span><span class="k2" id="popLogoK2">\</span>
+      KEYRHYTHM
+    </div>
+    <div class="popup-header-actions" id="popHeaderActions">
+      <button class="btn btn-sm btn-dim" id="btnSettings" title="Open settings">⚙</button>
+      <button class="btn btn-sm btn-dim" id="btnFullscreen" title="Open in full tab">⛶</button>
+    </div>
+  </div>
+
+  <div class="popup-toolbar" id="popupToolbar">
+    <input type="text" id="searchBox" placeholder="Search levels…" class="search-input">
+    <select id="sortSelect" class="sort-select">
+      <option value="date">Newest</option>
+      <option value="title">A–Z</option>
+      <option value="artist">Artist</option>
+      <option value="score">Best Score</option>
+      <option value="recent">Recently Played</option>
+    </select>
+  </div>
+
+  <div class="popup-actions" id="popupActions">
+    <button class="btn btn-sm btn-cyan"  id="btnCreate" title="Create a new level">+ Create</button>
+    <button class="btn btn-sm btn-green" id="btnLive" title="Live overlay mode for any webpage">🎮 Live</button>
+    <button class="btn btn-sm btn-dim"   id="btnImport" title="Import from .json or .krz file">↓ File</button>
+    <button class="btn btn-sm btn-dim"   id="btnImportCode" title="Import from a share code">📋 Code</button>
+  </div>
+
+  <!-- Settings panel (collapsible) -->
+  <div id="settingsPanel" class="popup-settings hidden">
+    <h3 id="popSettingsTitle">SETTINGS</h3>
+    <div class="setting-row">
+      <label id="popScrollSpeedLabel">Scroll Speed</label>
+      <input type="range" id="sSpeed" min="0.5" max="3" step="0.1" value="1">
+      <span id="sSpeedVal">1.0×</span>
+    </div>
+    <div class="setting-row">
+      <label id="popPracticeSpeedLabel">Practice Speed</label>
+      <input type="range" id="sPractice" min="0.1" max="2.0" step="0.05" value="1.0">
+      <span id="sPracticeVal">1.0×</span>
+    </div>
+    <div class="setting-row">
+      <label id="popNoDeathLabel">No Death Mode</label>
+      <input type="checkbox" id="sPracticeMode">
+    </div>
+    <div class="setting-row">
+      <label id="popGlideLabel" title="Hold notes that cross adjacent lanes become glide notes">Glide Notes</label>
+      <input type="checkbox" id="sGlide">
+    </div>
+    <div class="divider" id="popSettingsDivider1"></div>
+    <div class="setting-row">
+      <label id="popMasterVolLabel">Master Vol</label>
+      <input type="range" id="sMasterVol" min="0" max="1" step="0.05" value="1">
+      <span id="sMasterVolVal">100%</span>
+    </div>
+    <div class="setting-row">
+      <label id="popMusicVolLabel">Music Vol</label>
+      <input type="range" id="sMusicVol" min="0" max="1" step="0.05" value="1">
+      <span id="sMusicVolVal">100%</span>
+    </div>
+    <div class="setting-row">
+      <label id="popHitsoundLabel">Hitsound</label>
+      <select id="sHitsound" class="select-flex select-sm">
+        <option value="none">None</option>
+        <option value="tick" selected>Tick</option>
+        <option value="click">Click</option>
+        <option value="drum">Drum</option>
+        <option value="bass">Bass</option>
+        <option value="bell">Bell</option>
+        <option value="kick">Kick</option>
+        <option value="snare">Snare</option>
+        <option value="custom">Custom…</option>
+      </select>
+      <button class="btn btn-sm btn-dim" id="btnTestHitsound">Test</button>
+    </div>
+    <div class="setting-row">
+      <label id="popHsVolLabel">HS Volume</label>
+      <input type="range" id="sHitsoundVol" min="0" max="1" step="0.05" value="0.5">
+      <span id="sHitsoundVolVal">50%</span>
+    </div>
+    <div class="setting-row">
+      <label id="popMetroVolLabel">Metro Vol</label>
+      <input type="range" id="sMetronomeVol" min="0" max="1" step="0.05" value="0.5">
+      <span id="sMetronomeVolVal">50%</span>
+    </div>
+    <div class="setting-row">
+      <label id="popAudioOffsetLabel">Audio Offset</label>
+      <input type="range" id="sOffset" min="-500" max="500" step="1" value="0">
+      <span id="sOffsetVal">0ms</span>
+    </div>
+    <div class="divider" id="popSettingsDivider2"></div>
+    <div class="setting-row">
+      <label id="popHideTooltipsLabel" title="Hide help tooltips on hover (song name tooltips still show)">Hide Tooltips</label>
+      <input type="checkbox" id="sHideTooltips">
+    </div>
+    <div class="divider" id="popSettingsDivider3"></div>
+    <button class="btn btn-sm btn-cyan" id="btnOpenSkinEditor" style="width:100%">🎨 Open Skin Editor</button>
+    <button class="btn btn-sm btn-dim" id="btnResetAllSettings" style="width:100%;margin-top:6px">↺ Reset All Settings</button>
+  </div>
+
+  <!-- Live panel (collapsible) -->
+  <div id="livePanel" class="popup-settings hidden">
+    <h3 id="popLiveTitle">LIVE MODE</h3>
+    <div class="setting-row">
+      <label id="popLiveStatusLabel">Status</label>
+      <span id="liveStatus" style="font-size:11px;font-family:monospace;color:var(--text-dim)">● OFF</span>
+    </div>
+    <div class="divider" id="popLiveDivider1"></div>
+    <div class="btn-row" style="flex-wrap:wrap;margin-top:6px">
+      <button class="btn btn-sm btn-green"      id="btnAutoPlay" title="Auto-generate notes from page audio">▶ Auto Play</button>
+      <button class="btn btn-sm btn-red"         id="btnLiveRec" title="Record notes by tapping keys along with audio">⏺ Record</button>
+      <button class="btn btn-sm btn-dim hidden"  id="btnLiveStop" title="Stop Live mode and save recording">⏹ Stop</button>
+      <button class="btn btn-sm btn-dim"         id="btnLiveSettings" title="Toggle live settings">⚙ Settings</button>
+    </div>
+    <p class="live-hint" id="popLiveHint">
+      Navigate to a page with audio/video, then click a mode.<br>
+      <b>Auto Play</b>: notes auto-generated from audio.<br>
+      <b>Record</b>: tap keys to author a chart in real time.
+    </p>
+    <div id="liveSettings" class="hidden">
+      <div class="divider" id="popLiveDivider2"></div>
+      <div class="setting-row">
+        <label id="popLanesLabel">Lanes</label>
+        <select id="liveLanes" class="select-flex select-sm" title="Number of lanes in Live mode">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label id="popDifficultyLabel">Difficulty</label>
+        <select id="liveDifficulty" class="select-flex select-sm" title="Difficulty preset for Live mode note generation">
+          <option value="easy">Easy</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Hard</option>
+          <option value="expert">Expert</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+      <div class="divider" id="popLiveDivider3"></div>
+      <div class="setting-row">
+        <label id="popDelayLabel" title="How far ahead notes appear (ms). Higher = more lookahead.">Delay</label>
+        <input type="range" id="lDelay" min="100" max="3000" step="50" value="1000">
+        <span id="lDelayVal">1000ms</span>
+      </div>
+      <div class="setting-row">
+        <label id="popNoteGapLabel" title="Minimum gap between notes (ms).">Note Gap</label>
+        <input type="range" id="lNoteGap" min="50" max="600" step="25" value="250">
+        <span id="lNoteGapVal">250ms</span>
+      </div>
+      <div class="setting-row">
+        <label id="popHoldMinLabel" title="How long a pitch must sustain before becoming a hold note (ms).">Hold Min</label>
+        <input type="range" id="lNoteLen" min="50" max="500" step="25" value="120">
+        <span id="lNoteLenVal">120ms</span>
+      </div>
+      <div class="setting-row">
+        <label id="popMergingLabel" title="Extend hold notes while the same pitch continues.">Merging</label>
+        <input type="checkbox" id="lMerging" checked>
+      </div>
+      <div class="setting-row">
+        <label id="popChordRateLabel" title="Chance of adding simultaneous notes on loud peaks. 0 = no chords.">Chords</label>
+        <input type="range" id="lChordRate" min="0" max="1" step="0.05" value="0.15">
+        <span id="lChordRateVal">0.15</span>
+      </div>
+      <div class="setting-row">
+        <label id="popHeldChordsLabel" title="Allow chord notes to extend into holds when audio sustains.">Held Chords</label>
+        <input type="checkbox" id="lHeldChords" checked>
+      </div>
+      <div class="setting-row">
+        <label id="popOverlapNotesLabel" title="Allow new notes to spawn on other lanes while a hold is active.">Notes During Holds</label>
+        <input type="checkbox" id="lOverlapNotes" checked>
+      </div>
+      <div class="setting-row">
+        <label id="popOverlapDelayLabel" title="How long a hold must sustain before notes can spawn on other lanes (ms).">Overlap After</label>
+        <input type="range" id="lOverlapDelay" min="100" max="2000" step="50" value="500">
+        <span id="lOverlapDelayVal">500ms</span>
+      </div>
+      <div class="setting-row">
+        <label id="popLiveScrollLabel" title="How fast notes approach the hit line. Higher = faster.">Scroll Speed</label>
+        <input type="range" id="lScrollSpeed" min="0.5" max="3.0" step="0.1" value="1.0">
+        <span id="lScrollSpeedVal">1.0×</span>
+      </div>
+      <div class="setting-row">
+        <label id="popHorizontalLabel" title="Notes scroll horizontally left-to-right instead of falling vertically.">Horizontal Mode</label>
+        <input type="checkbox" id="lHorizontal">
+      </div>
+      <div class="setting-row">
+        <label id="popLiveHitsoundLabel" title="Play hitsounds when notes are hit in Auto Play mode.">Hitsounds</label>
+        <input type="checkbox" id="lLiveHitsound" checked>
+      </div>
+      <div class="divider" id="popLiveDivider4"></div>
+      <div class="setting-row">
+        <label id="popClarityLabel" title="Pitch confidence threshold. Higher = only clear tones generate notes.">Clarity</label>
+        <input type="range" id="lClarity" min="0.05" max="0.95" step="0.05" value="0.4">
+        <span id="lClarityVal">0.40</span>
+      </div>
+      <div class="setting-row">
+        <label id="popVolumeLabel" title="Minimum volume to trigger a note.">Volume</label>
+        <input type="range" id="lVolume" min="0" max="0.2" step="0.005" value="0.04">
+        <span id="lVolumeVal">0.040</span>
+      </div>
+      <div class="divider" id="popLiveDivider5"></div>
+      <div class="setting-row">
+        <label id="popExitKeyLabel">Exit Key</label>
+        <button class="btn btn-sm btn-dim" id="lExitKey" style="min-width:70px">Escape</button>
+      </div>
+      <div class="setting-row">
+        <label id="popPauseKeyLabel">Pause Key</label>
+        <button class="btn btn-sm btn-dim" id="lPauseKey" style="min-width:70px">Space</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="songItems" class="popup-song-list"></div>
+
+  <input type="file" id="importFile" accept=".json,.krz" style="display:none">
+
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/ui-layout.js"></script>
+  <script src="js/skins.js"></script>
+  <script src="js/hitsounds.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/popup.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bg-music.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm — Save Recording</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme-init.js"></script>
+  <style>
+    body { max-width: 480px; margin: 40px auto; padding: 24px; }
+    .rec-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+    h2 { color: var(--accent); margin-bottom: 18px; font-size: 18px; letter-spacing: 2px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 11px; color: var(--text-dim); margin-bottom: 5px; letter-spacing: 1px; }
+    .field input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      outline: none;
+    }
+    .field input:focus { border-color: var(--accent); }
+    .meta-row {
+      display: flex; gap: 16px; margin-bottom: 18px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .meta-row span { background: var(--bg3); border: 1px solid var(--border);
+      padding: 4px 10px; border-radius: 4px; }
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
+    #statusMsg { margin-top: 12px; font-size: 12px; color: var(--text-dim); min-height: 18px; }
+  </style>
+</head>
+<body class="popup-page">
+  <div class="rec-card">
+    <h2>⏺ SAVE RECORDING</h2>
+
+    <div class="meta-row">
+      <span id="metaDuration">Duration: —</span>
+      <span id="metaLanes">Lanes: —</span>
+      <span id="metaNotes">Notes: —</span>
+    </div>
+
+    <div class="field">
+      <label>TITLE</label>
+      <input type="text" id="titleInput" placeholder="Live Recording" maxlength="80">
+    </div>
+    <div class="field">
+      <label>ARTIST</label>
+      <input type="text" id="artistInput" placeholder="(optional)" maxlength="80">
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-green" id="btnSave">💾 Save Song</button>
+      <button class="btn btn-dim"   id="btnDiscard">✕ Discard</button>
+    </div>
+    <div id="statusMsg"></div>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/record-complete.js"></script>
+</body>
+</html>

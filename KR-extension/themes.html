@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KeyRhythm — Themes</title>
+  <link rel="icon" type="image/png" href="icons/icon48.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="lib/pickr/pickr.min.css">
+  <script src="js/theme-init.js"></script>
+</head>
+<body class="theme-browser-page">
+  <div class="theme-browser-wrap">
+    <div class="theme-browser-cards" id="tbCards">
+      <div class="skin-header">
+        <button class="btn btn-sm btn-dim" id="btnBack">← Back</button>
+        <h2>THEMES</h2>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-sm btn-dim" id="btnOpenSkinEd">Skin Editor</button>
+        </div>
+      </div>
+      <div class="tb-section">
+        <div class="tb-section-header">
+          <span class="tb-section-title">MY THEMES</span>
+          <button class="btn btn-sm btn-accent" id="btnSaveCurrent">+ Save Current</button>
+        </div>
+        <div class="tb-grid" id="tbCustomGrid"></div>
+        <div class="tb-empty" id="tbCustomEmpty">No custom themes yet</div>
+      </div>
+      <div class="tb-section">
+        <span class="tb-section-title">BUILT-IN</span>
+        <div class="tb-toolbar">
+          <input type="text" id="tbSearch" class="tb-search" placeholder="Search themes...">
+          <select id="tbSort" class="tb-sort">
+            <option value="default">Default</option>
+            <option value="alpha">A &rarr; Z</option>
+            <option value="color">By Color</option>
+          </select>
+        </div>
+        <div class="tb-grid" id="tbBuiltinGrid"></div>
+      </div>
+    </div>
+    <div class="theme-browser-preview" id="tbPreview">
+      <div class="tb-preview-label">GAME</div>
+      <canvas id="tbGameCanvas" width="260" height="360"></canvas>
+      <div class="tb-preview-label" style="margin-top:10px">UI</div>
+      <canvas id="tbUICanvas" width="260" height="180"></canvas>
+      <div class="tb-preview-actions">
+        <button class="btn btn-sm btn-accent" id="btnApplyTheme" disabled>Apply</button>
+        <button class="btn btn-sm btn-dim" id="btnCancelPreview" disabled>Cancel</button>
+      </div>
+      <div class="tb-color-editor hidden" id="tbColorEditor">
+        <div class="tb-color-editor-title">EDIT COLORS</div>
+        <div id="tbColorRows"></div>
+        <div class="tb-color-editor-actions">
+          <button class="btn btn-sm btn-green" id="btnSaveEdited">Save as Custom</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/ui-layout.js"></script>
+  <script src="js/skins.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="lib/pickr/pickr.min.js"></script>
+  <script src="js/color-picker.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bg-music.js"></script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KeyRhythm – Create Level</title>
+  <link rel="icon" href="icons/icon32.png">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/theme-init.js"></script>
+</head>
+<body class="create-page">
+
+  <!-- Countdown overlay -->
+  <div class="countdown-overlay hidden" id="countdownOverlay">
+    <div class="countdown-num" id="cdNum">3</div>
+    <div class="countdown-msg">GET READY</div>
+  </div>
+
+  <div class="page-header" id="pageHeader">
+    <button class="btn btn-sm btn-dim" id="btnBack">← Back</button>
+    <h1 id="crPageTitle">CREATE LEVEL</h1>
+  </div>
+
+  <!-- Song details -->
+  <div class="create-section" id="songSection">
+    <div class="create-section-title" id="crSongDetailsTitle">Song Details</div>
+    <div class="form-group">
+      <label for="inputTitle" id="crSongTitleLabel">Song Title *</label>
+      <input type="text" id="inputTitle" placeholder="Enter song title">
+    </div>
+    <div class="form-group">
+      <label for="inputArtist" id="crArtistLabel">Artist</label>
+      <input type="text" id="inputArtist" placeholder="Enter artist name">
+    </div>
+    <div class="form-group">
+      <label id="crAudioFileLabel">Audio File *</label>
+      <div class="upload-zone" id="uploadZone">
+        <p id="uploadText">Click to choose audio file (mp3, ogg, wav…)</p>
+        <input type="file" id="audioFile" accept="audio/*" style="display:none">
+      </div>
+    </div>
+  </div>
+
+  <!-- Recording options -->
+  <div class="create-section" id="optionsSection">
+    <div class="create-section-title" id="crRecOptionsTitle">Recording Options</div>
+    <div class="form-row">
+      <div class="form-inline">
+        <label id="crLaneCountLabel">Lane Count</label>
+        <select id="laneCount" title="Number of lanes for this level" class="input-sm">
+          <option value="2">2</option>
+          <option value="3" selected>3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label style="margin:0" id="crMetronomeLabel">
+        <input type="checkbox" id="metronomeToggle">
+        Metronome during recording
+      </label>
+      <div class="form-inline">
+        <label id="crBpmLabel">BPM</label>
+        <input type="number" id="metronomeBpm" placeholder="---" min="20" max="999" class="input-sm" style="width:70px" title="Beats per minute for the metronome">
+        <button class="btn btn-sm btn-cyan" id="btnDetectBpmCreate" title="Auto-detect BPM from audio" disabled>Detect</button>
+        <label title="Enable multi-section BPM detection for songs with tempo changes" id="crDynamicLabel">
+          <input type="checkbox" id="dynamicBpmToggleCreate">
+          Dynamic
+        </label>
+      </div>
+    </div>
+    <div class="form-row">
+      <label style="margin:0" title="Snap recorded note times to the nearest BPM beat when recording stops" id="crSnapLabel">
+        <input type="checkbox" id="snapToBpm">
+        Snap to BPM
+      </label>
+      <select id="snapDiv" class="select-sm" title="Beat subdivision for snapping">
+        <option value="4" selected>1/4</option>
+        <option value="8">1/8</option>
+        <option value="16">1/16</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-inline">
+        <label title="Minimum time a key must be held before the note is recorded as a hold (not a tap)." id="crHoldThresholdLabel">Hold Threshold</label>
+        <input type="number" id="holdThresholdMs" value="100" min="0" max="1000" step="10" class="input-sm" title="ms — key must be held at least this long to register as a hold note">
+        <span style="font-size:12px;color:var(--text-dim)">ms</span>
+      </div>
+      <button class="btn btn-sm btn-dim" id="btnSyncThreshold" title="Set threshold to half a beat at the metronome BPM">Sync to BPM</button>
+    </div>
+    <div class="form-row">
+      <button class="btn btn-sm btn-cyan" id="btnAutotrimCreate" title="Remove silence from start/end of audio" disabled>Autotrim</button>
+      <div class="form-inline">
+        <label id="crPadLabel">Pad</label>
+        <input type="number" id="trimPadBeatsCreate" placeholder="0" min="0" max="16" step="1" value="0" class="input-sm" style="width:50px" title="Beats of silence to keep at start/end">
+        <span style="font-size:12px;color:var(--text-dim)" id="crPadBeatsLabel">beats</span>
+      </div>
+      <span class="trim-status" id="trimStatusCreate" style="font-size:12px;color:var(--text-dim)"></span>
+    </div>
+  </div>
+
+  <!-- BPM sections list (dynamic mode, create page) -->
+  <div class="bpm-sections-bar hidden" id="bpmSectionsBarCreate">
+    <div class="bpm-sections-header">
+      <span class="bpm-sections-title">BPM Sections</span>
+      <button class="btn btn-sm btn-dim" id="btnAddSectionCreate" title="Add section boundary at current time">+ Add</button>
+    </div>
+    <div class="bpm-sections-list" id="bpmSectionsListCreate"></div>
+  </div>
+
+  <!-- Recording section -->
+  <div class="record-section">
+    <div class="record-status hidden" id="recStatus">
+      <div class="rec-dot" id="recDot"></div>
+      <span id="recLabel">RECORDING</span>
+      <span class="time-display" id="recTime">0:00.000</span>
+    </div>
+
+    <div class="btn-row" style="flex-wrap:wrap;margin-bottom:16px;gap:12px">
+      <button class="btn btn-green" id="btnRecord" disabled title="Record notes by pressing keys while audio plays">▶ Start Recording</button>
+      <button class="btn btn-dim hidden" id="btnPause" title="Pause / resume recording (Space)">⏸ Pause</button>
+      <button class="btn btn-red hidden" id="btnStop" title="Stop recording and save">■ Stop</button>
+      <button class="btn btn-dim hidden" id="btnUndo5" title="Remove last 5 seconds of notes and rewind">↺ Undo 5s</button>
+      <button class="btn btn-dim hidden" id="btnCancel" title="Discard recording and start over">✕ Cancel</button>
+    </div>
+    <div id="recToast" class="rec-toast"></div>
+
+    <div class="key-hints" id="keyHintsContainer"></div>
+
+    <canvas id="risingCanvas" style="display:none;width:100%;height:320px;margin-top:12px;border:1px solid var(--border);border-radius:4px;background:#0a0a14"></canvas>
+
+    <div class="note-count" id="noteCount">Notes recorded: <span>0</span></div>
+  </div>
+
+  <!-- Auto Generate settings panel (below record section) -->
+  <div class="form-group" style="margin-top:20px">
+    <details id="autoGenPanel">
+      <summary>AUTO GENERATE</summary>
+
+      <div class="ag-row">
+        <div class="ag-field">
+          <label id="crAgDifficultyLabel">Difficulty</label>
+          <select id="autoGenDifficulty" class="ag-select">
+            <option value="easy">Easy</option>
+            <option value="normal" selected>Normal</option>
+            <option value="hard">Hard</option>
+            <option value="expert">Expert</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="ag-field">
+          <label title="Min gap between notes per lane (ms). Lower = more notes." id="crAgNoteGapLabel">Note Gap</label>
+          <div class="ag-slider">
+            <input type="range" id="agNoteGap" min="50" max="600" step="25" value="250">
+            <span id="agNoteGapVal">250ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-row">
+        <div class="ag-field">
+          <label title="Max notes per second across all lanes." id="crAgMaxDensityLabel">Max Density</label>
+          <div class="ag-slider">
+            <input type="range" id="agMaxDensity" min="1" max="10" step="0.5" value="4">
+            <span id="agMaxDensityVal">4.0 /s</span>
+          </div>
+        </div>
+        <div class="ag-field">
+          <label title="Minimum pitch clarity to trigger a note. Lower = more sensitive, higher = only clear pitched sounds." id="crAgClarityLabel">Clarity</label>
+          <div class="ag-slider">
+            <input type="range" id="agClarity" min="0.01" max="0.5" step="0.01" value="0.1">
+            <span id="agClarityVal">0.10</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-row">
+        <div class="ag-field">
+          <label title="Minimum RMS volume to detect a note. Raise to skip quiet sections." id="crAgVolumeLabel">Volume</label>
+          <div class="ag-slider">
+            <input type="range" id="agVolume" min="0" max="0.15" step="0.005" value="0.03">
+            <span id="agVolumeVal">0.030</span>
+          </div>
+        </div>
+        <div class="ag-field">
+          <label title="Minimum onset duration before becoming a hold note." id="crAgHoldMinLabel">Hold Min</label>
+          <div class="ag-slider">
+            <input type="range" id="agHoldMin" min="50" max="500" step="25" value="120">
+            <span id="agHoldMinVal">120ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-row">
+        <div class="ag-field">
+          <label title="Lower frequency cutoff for lane assignment." id="crAgFreqLowLabel">Freq Low</label>
+          <div class="ag-inline">
+            <input type="number" id="agFreqLow" value="80" min="20" max="2000" step="10" class="ag-num">
+            <span>Hz</span>
+          </div>
+        </div>
+        <div class="ag-field">
+          <label title="Upper frequency cutoff for lane assignment." id="crAgFreqHighLabel">Freq High</label>
+          <div class="ag-inline">
+            <input type="number" id="agFreqHigh" value="4000" min="500" max="20000" step="100" class="ag-num">
+            <span>Hz</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-row">
+        <div class="ag-field"></div>
+        <div class="ag-field">
+          <label title="Fraction of energy peaks that become chords (simultaneous notes)." id="crAgChordRateLabel">Chords</label>
+          <div class="ag-slider">
+            <input type="range" id="agChordRate" min="0" max="1" step="0.05" value="0.15">
+            <span id="agChordRateVal">0.15</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-row">
+        <div class="ag-field">
+          <label title="How strong an energy spike must be to qualify as a chord. Lower = more chords." id="crAgPeakThreshLabel">Peak Sensitivity</label>
+          <div class="ag-slider">
+            <input type="range" id="agPeakThresh" min="1.1" max="4.0" step="0.1" value="1.8">
+            <span id="agPeakThreshVal">1.8×</span>
+          </div>
+        </div>
+        <div class="ag-field">
+          <label title="Allow chord notes to have the same hold duration as the note they attach to." id="crAgHeldChordsLabel">Held Chords</label>
+          <div class="ag-inline">
+            <input type="checkbox" id="agHeldChords" checked>
+            <span style="color:var(--text)">Enable</span>
+          </div>
+        </div>
+      </div>
+      <div class="ag-row">
+        <div class="ag-field">
+          <label title="Allow new notes to spawn on other lanes while a hold is being extended." id="crAgOverlapNotesLabel">Notes During Holds</label>
+          <div class="ag-inline">
+            <input type="checkbox" id="agOverlapNotes" checked>
+            <span style="color:var(--text)">Enable</span>
+          </div>
+        </div>
+        <div class="ag-field">
+          <label title="How long a hold must sustain before notes can spawn on other lanes (ms)." id="crAgOverlapDelayLabel">Overlap After</label>
+          <div class="ag-slider">
+            <input type="range" id="agOverlapDelay" min="100" max="2000" step="50" value="500">
+            <span id="agOverlapDelayVal">500ms</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ag-row">
+        <div class="ag-field">
+          <label title="Merge consecutive same-lane onsets into hold notes." id="crAgMergingLabel">Merging</label>
+          <div class="ag-inline">
+            <input type="checkbox" id="agMerging" checked>
+            <span style="color:var(--text)">Enable</span>
+          </div>
+        </div>
+        <div class="ag-field">
+          <label title="Snap generated note times to a BPM beat grid (uses Metronome BPM above)." id="crAgBpmSnapLabel">BPM Snap</label>
+          <div class="ag-inline">
+            <input type="checkbox" id="agBpmSnap" >
+            <select id="agBpmDiv" class="ag-select" style="flex:1">
+              <option value="4" selected>1/4 beat</option>
+              <option value="8">1/8 beat</option>
+              <option value="16">1/16 beat</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-cyan" id="btnAutoGen" disabled style="margin-top:6px" title="Automatically generate notes from the audio file">🎵 Auto Generate</button>
+    </details>
+  </div>
+
+  <script src="js/db.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/ui-layout.js"></script>
+  <script src="js/skins.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/bpm-detect.js"></script>
+  <script src="js/audio-trim.js"></script>
+  <script src="js/create.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/bg-music.js"></script>
+</body>
+</html>
